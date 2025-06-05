@@ -53,6 +53,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         
         <script src="https://unpkg.com/three@0.139.2/build/three.min.js"></script>
         <script src="https://unpkg.com/three@0.139.2/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.19/dist/lil-gui.umd.min.js"></script>
 		<script>
 
 			// ----- math on vector arrays -------------------------------------------------------------
@@ -136,14 +137,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 			};
 
 			// ------------------------------------------------------------------
-			function onShowEdges() 
-			{
-				gPhysicsScene.showEdges = !gPhysicsScene.showEdges;
-				for (var i = 0; i < gPhysicsScene.objects.length; i++) {
-					gPhysicsScene.objects[i].edgeMesh.visible = gPhysicsScene.showEdges;
-					gPhysicsScene.objects[i].triMesh.visible = !gPhysicsScene.showEdges;
-				}
-			}			
+                        function setShowEdges(value)
+                        {
+                                gPhysicsScene.showEdges = value;
+                                for (var i = 0; i < gPhysicsScene.objects.length; i++) {
+                                        gPhysicsScene.objects[i].edgeMesh.visible = value;
+                                        gPhysicsScene.objects[i].triMesh.visible = !value;
+                                }
+                        }
+
+                        function onShowEdges()
+                        {
+                                setShowEdges(!gPhysicsScene.showEdges);
+                        }
 
 			// ------------------------------------------------------------------
 			function findTriNeighbors(triIds) 
@@ -706,6 +712,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 				for (var i = 0; i < gPhysicsScene.objects.length; i++) 
 					gPhysicsScene.objects[i].bendingCompliance = this.value;
 			}
+
+                        function setupGui() {
+                                var gui = new lil.GUI();
+                                gui.add(gPhysicsScene, "showEdges").name("Show edges").onChange(function(v){ setShowEdges(v); });
+                                var obj = { bendingCompliance : gPhysicsScene.objects[0].bendingCompliance };
+                                gui.add(obj, "bendingCompliance", 0, 10).name("Bending compliance").onChange(function(v){
+                                        for (var i = 0; i < gPhysicsScene.objects.length; i++)
+                                                gPhysicsScene.objects[i].bendingCompliance = v;
+                                });
+                        }
+
 			
 			// ------------------------------------------------------
 
@@ -2695,6 +2712,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 			initThreeScene();
 			onWindowResize();
 			initPhysics();
+                        setupGui();
 			update();
 			
 		</script>
